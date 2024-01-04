@@ -1,24 +1,24 @@
-const ws = new WebSocket("wss://ntfy.sh/sudaxo/ws");
+// const ws = new WebSocket("wss://ntfy.sh/sudaxo/ws");
 
-ws.addEventListener('open', () => {
-    console.log('[ServiceWorker] WebSocket connection opened');
-});
+// ws.addEventListener('open', () => {
+//     console.log('[ServiceWorker] WebSocket connection opened');
+// });
 
-ws.addEventListener("message", function (event) {
-    const data = event.data;
-    console.log('[ServiceWorker] Received data:', data);
+// ws.addEventListener("message", function (event) {
+//     const data = event.data;
+//     console.log('[ServiceWorker] Received data:', data);
 
-    self.clients.matchAll().then((clients) => {
-        clients.forEach((client) => {
-            client.postMessage(data);
-        });
-    });
+//     self.clients.matchAll().then((clients) => {
+//         clients.forEach((client) => {
+//             client.postMessage(data);
+//         });
+//     });
 
-    self.registration.showNotification('sudaxo123', {
-        body: data
-    });
+//     self.registration.showNotification('sudaxo123', {
+//         body: data
+//     });
 
-});
+// });
 
 const cacheName = 'cache-v1';
 const filesToCache = [
