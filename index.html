@@ -28,15 +28,6 @@
           registration.scope
         );
 
-        registration.sync
-          .register("background-sync")
-          .then(() => {
-            console.log("Background sync registered");
-          })
-          .catch((error) => {
-            console.error("Background sync registration failed:", error);
-          });
-
         // Listen for messages from the service worker
         navigator.serviceWorker.addEventListener("message", function (event) {
           const data = event.data;
