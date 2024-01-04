@@ -3,12 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="sudax.png" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Sudhakar Ramasamy's Assistant" />
+    <meta
+      name="keywords"
+      content="sudax, sudhakar, sudhakar3697, rsudhakar3697, sudhakar ramasamy"
+    />
+    <meta name="author" content="Sudhakar Ramasamy" />
     <title>Sudax</title>
   </head>
   <body>
     <div id="container">
       <h1>Sudax</h1>
       <div>
+        <label for="content-ta" style="font-weight: bolder">Action</label>
+        <br />
+        <br />
         <textarea rows="5" cols="100" id="content-ta"></textarea>
         <br />
         <br />
@@ -23,6 +35,7 @@
 
 <script>
   const eventsPanel = document.getElementById("events_panel");
+  const sendButton = document.getElementById("send-button");
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker
@@ -47,10 +60,14 @@
 
   requestNotificationPermission();
 
-  document.getElementById("send-button").addEventListener("click", (e) => {
+  sendButton.addEventListener("click", (e) => {
     const data = document.getElementById("content-ta").value;
     console.log(data);
-    sendEvent(data);
+    if (navigator.onLine) {
+      sendEvent(data);
+    } else {
+      alert("You are offline!");
+    }
   });
 
   function requestNotificationPermission() {
