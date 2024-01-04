@@ -32,7 +32,7 @@ socket.on('message', (json) => {
     console.log(`Received message from server: ${json}`);
     json = JSON.parse(json);
     const msg = json.message || '';
-    if (msg.toLowerCase().includes('stop')) {
+    if (msg.toLowerCase().includes('toggle')) {
         processAction('TOGGLE_YOUTUBE');
     } else if (msg.toLowerCase().includes('lock')) {
         processAction('LOCK_SCREEN');

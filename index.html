@@ -18,6 +18,17 @@
     <div id="container">
       <h1>Sudax</h1>
       <div>
+        <button id="media-button">Pause/Resume YT/Spotify</button>
+        <br />
+        <br />
+        <button id="sys-lock-button">Lock System</button>
+        <br />
+        <br />
+        <button id="min-win-button">Minimize Windows</button>
+        <br />
+        <br />
+      </div>
+      <div>
         <label for="content-ta" style="font-weight: bolder">Action</label>
         <br />
         <br />
@@ -36,6 +47,9 @@
 <script>
   const eventsPanel = document.getElementById("events_panel");
   const sendButton = document.getElementById("send-button");
+  const mediaButton = document.getElementById("media-button");
+  const sysLockButton = document.getElementById("sys-lock-button");
+  const minWinButton = document.getElementById("min-win-button");
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker
@@ -63,11 +77,19 @@
   sendButton.addEventListener("click", (e) => {
     const data = document.getElementById("content-ta").value;
     console.log(data);
-    if (navigator.onLine) {
-      sendEvent(data);
-    } else {
-      alert("You are offline!");
-    }
+    sendEvent(data);
+  });
+
+  mediaButton.addEventListener("click", (e) => {
+    sendEvent("toggle");
+  });
+
+  sysLockButton.addEventListener("click", (e) => {
+    sendEvent("lock");
+  });
+
+  minWinButton.addEventListener("click", (e) => {
+    sendEvent("minimize");
   });
 
   function requestNotificationPermission() {
@@ -96,11 +118,15 @@
   }
 
   async function sendEvent(data) {
-    const res = await fetch("https://ntfy.sh/sudaxo", {
-      method: "POST",
-      body: data,
-    });
-    const resp = await res.json();
-    console.log(resp);
+    if (navigator.onLine) {
+      const res = await fetch("https://ntfy.sh/sudaxo", {
+        method: "POST",
+        body: data,
+      });
+      const resp = await res.json();
+      console.log(resp);
+    } else {
+      alert("You are offline!");
+    }
   }
 </script>
