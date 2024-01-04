@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sudax</title>
+  </head>
+  <body>
+    <h1>Sudax</h1>
+    <div style="float: left">
+      <textarea id="content-ta"></textarea>
+      <br />
+      <button id="send-button">Send</button>
+    </div>
+    <div style="float: right">
+      <ul id="events_panel"></ul>
+    </div>
+  </body>
+</html>
+
+<script>
+  const eventsPanel = document.getElementById("events_panel");
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+      .register("sw.js")
+      .then((registration) => {
+        console.log(
+          "Service Worker registered with scope:",
+          registration.scope
+        );
+
+        registration.sync
+          .register("background-sync")
+          .then(() => {
+            console.log("Background sync registered");
+          })
+          .catch((error) => {
+            console.error("Background sync registration failed:", error);
+          });
+
+        // Listen for messages from the service worker
+        navigator.serviceWorker.addEventListener("message", function (event) {
+          const data = event.data;
+          console.log("Client received a message:", data);
+          addEntryToEventsPanel(data);
+        });
+      })
+      .catch((error) => {
+        console.error("Service Worker registration failed:", error);
+      });
+  }
+
+  requestNotificationPermission();
+
+  document.getElementById("send-button").addEventListener("click", (e) => {
+    const data = document.getElementById("content-ta").value;
+    console.log(data);
+    sendEvent(data);
+  });
+
+  function requestNotificationPermission() {
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        console.log("Notification permission granted.");
+      } else {
+        console.log("Unable to get notification permission.");
+      }
+    });
+  }
+
+  function showClientNotification(title, message) {
+    const notification = new Notification(title, {
+      body: message,
+    });
+    notification.onclick = function () {
+      console.log("Notification clicked!");
+    };
+  }
+
+  function addEntryToEventsPanel(data) {
+    const li = document.createElement("li");
+    li.innerText = data;
+    eventsPanel.appendChild(li);
+  }
+
+  async function sendEvent(data) {
+    const res = await fetch("https://ntfy.sh/sudaxo", {
+      method: "POST",
+      body: data,
+    });
+    const resp = await res.json();
+    console.log(resp);
+  }
+</script>
