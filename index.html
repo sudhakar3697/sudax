@@ -1,17 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sudax</title>
   </head>
   <body>
-    <h1>Sudax</h1>
-    <div style="float: left">
-      <textarea id="content-ta"></textarea>
-      <br />
-      <button id="send-button">Send</button>
-    </div>
-    <div style="float: right">
-      <ul id="events_panel"></ul>
+    <div id="container">
+      <h1>Sudax</h1>
+      <div>
+        <textarea rows="5" cols="100" id="content-ta"></textarea>
+        <br />
+        <br />
+        <button id="send-button">Send</button>
+      </div>
+      <div>
+        <ul id="events_panel"></ul>
+      </div>
     </div>
   </body>
 </html>

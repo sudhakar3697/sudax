@@ -7,12 +7,16 @@
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["sudax", "assistant"],
+  "keywords": [
+    "sudax",
+    "assistant"
+  ],
   "author": "sudhakar3697",
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
+    "node-key-sender": "^1.0.11",
     "ws": "^8.16.0"
   }
 }
