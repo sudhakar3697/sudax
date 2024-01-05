@@ -62,6 +62,9 @@ socket.on('message', (json) => {
                     processAction('LOCK_SCREEN');
                 } else if (action.toLowerCase().includes('minimize')) {
                     processAction('MINIMIZE');
+                } else if (action.toLowerCase().includes('$clipcopy')) {
+                    let content = action.split('$clipcopy=')[1];
+                    processAction('CLIPBOARD_COPY', content);
                 }
             } else {
                 sendEvent('token_res_failure?cc=' + cc);
@@ -86,6 +89,9 @@ function processAction(action, input) {
             break;
         case 'LOCK_SCREEN':
             execSync(`rundll32.exe user32.dll, LockWorkStation`);
+            break;
+        case 'CLIPBOARD_COPY':
+            execSync(`echo ${input} | clip`);
             break;
         default:
             break;

@@ -30,6 +30,9 @@
         <button id="min-win-button">Minimize Windows</button>
         <br />
         <br />
+        <button id="copy-button">Send Clipboard Content</button>
+        <br />
+        <br />
       </div>
       <div>
         <label for="content-ta" style="font-weight: bolder">Action</label>
@@ -75,6 +78,7 @@
   const mediaButton = document.getElementById("media-button");
   const sysLockButton = document.getElementById("sys-lock-button");
   const minWinButton = document.getElementById("min-win-button");
+  const copyButton = document.getElementById("copy-button");
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker
@@ -112,6 +116,12 @@
 
   minWinButton.addEventListener("click", (e) => {
     sendEvent("minimize");
+  });
+
+  copyButton.addEventListener("click", async (e) => {
+    const clipboardText = await navigator.clipboard.readText();
+    console.log("Text from clipboard:", clipboardText);
+    sendEvent("$clipcopy=" + clipboardText);
   });
 
   function requestNotificationPermission() {
