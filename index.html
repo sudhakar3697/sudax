@@ -50,6 +50,11 @@
 <script>
   let accessCode = localStorage.getItem("accessCode");
 
+  if (!localStorage.getItem("clientCode")) {
+    let clientCode = Math.floor(Math.random() * 10000) + "_" + Date.now();
+    localStorage.setItem("clientCode", clientCode);
+  }
+
   const accessButton = document.getElementById("access-button");
 
   accessButton.addEventListener("click", (e) => {
@@ -136,9 +141,12 @@
 
   async function sendEvent(data, prefixAc = true) {
     if (navigator.onLine) {
+      const cc = localStorage.getItem("clientCode");
       const res = await fetch("https://ntfy.sh/sudaxo", {
         method: "POST",
-        body: prefixAc ? accessCode + "#" + data : data,
+        body: prefixAc
+          ? accessCode + "#" + data + "?cc=" + cc
+          : data + "?cc=" + cc,
       });
       const resp = await res.json();
       console.log(resp);
@@ -158,13 +166,15 @@
     console.log("[index.html] Received data:", data);
     const json = JSON.parse(data);
     const msg = json.message || "";
-    if (msg === "token_res_success") {
-      localStorage.setItem("accessCode", accessCode);
-      alert("You have access now!");
-    } else if (msg === "token_res_failure") {
-      localStorage.removeItem("accessCode");
-      accessCode = null;
-      alert("You do not have access!");
+    if (msg.endsWith(localStorage.getItem("clientCode"))) {
+      if (msg.startsWith("token_res_success")) {
+        localStorage.setItem("accessCode", accessCode);
+        alert("You have access now!");
+      } else if (msg.startsWith("token_res_failure")) {
+        localStorage.removeItem("accessCode");
+        accessCode = null;
+        alert("You do not have access!");
+      }
     }
   });
 </script>

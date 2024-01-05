@@ -6,7 +6,7 @@ const ks = require('node-key-sender');
 
 const PORT = 8080;
 
-const ACCESS_CODE = (Math.floor(Math.random() * 90) + 10).toString();
+const ACCESS_CODE = (Math.floor(Math.random() * 100)).toString();
 
 const app = express();
 
@@ -41,27 +41,31 @@ socket.on('message', (json) => {
     const msg = json.message || '';
 
     if (msg.startsWith('token_req_')) {
-        const ac = msg.split('token_req_')[1];
+        const part2 = msg.split('token_req_')[1];
+        const [ac, cc] = part2.split('?cc=');
         if (ac === ACCESS_CODE) {
-            sendEvent('token_res_success');
+            sendEvent('token_res_success?cc=' + cc);
         } else {
-            sendEvent('token_res_failure');
+            sendEvent('token_res_failure?cc=' + cc);
         }
         return;
     }
 
-    const [code, action] = msg.split('#');
-    if (code && action) {
-        if (code === ACCESS_CODE) {
-            if (action.toLowerCase().includes('toggle')) {
-                processAction('TOGGLE_YOUTUBE');
-            } else if (action.toLowerCase().includes('lock')) {
-                processAction('LOCK_SCREEN');
-            } else if (action.toLowerCase().includes('minimize')) {
-                processAction('MINIMIZE');
+    const [code, part2] = msg.split('#');
+    if (part2) {
+        const [action, cc] = part2.split('?cc=');
+        if (code && action) {
+            if (code === ACCESS_CODE) {
+                if (action.toLowerCase().includes('toggle')) {
+                    processAction('TOGGLE_YOUTUBE');
+                } else if (action.toLowerCase().includes('lock')) {
+                    processAction('LOCK_SCREEN');
+                } else if (action.toLowerCase().includes('minimize')) {
+                    processAction('MINIMIZE');
+                }
+            } else {
+                sendEvent('token_res_failure?cc=' + cc);
             }
-        } else {
-            sendEvent('token_res_failure');
         }
     }
 });
