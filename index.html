@@ -55,6 +55,10 @@
         <button id="dcs-button">Dongle Charge Status</button>
         <br />
         <br />
+        <button id="sn-button">Get Sticky Notes</button>
+        <br />
+        <br />
+        <hr />
       </div>
       <div id="custom_action_div">
         <label for="content-ta">Action</label>
@@ -106,6 +110,7 @@
   const minWinButton = document.getElementById("min-win-button");
   const copyButton = document.getElementById("copy-button");
   const dcsButton = document.getElementById("dcs-button");
+  const snButton = document.getElementById("sn-button");
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker
@@ -153,6 +158,10 @@
 
   dcsButton.addEventListener("click", (e) => {
     sendEvent("donglechargestatus");
+  });
+
+  snButton.addEventListener("click", (e) => {
+    sendEvent("stickynotes");
   });
 
   function requestNotificationPermission() {
@@ -217,6 +226,10 @@
         alert("You do not have access!");
       } else if (msg.startsWith("reporting_")) {
         alert(msg.split("?cc=")[0]);
+      } else if (msg.startsWith("c2c_")) {
+        navigator.clipboard.writeText(msg.split("?cc=")[0]).then((r) => {
+          alert("Clipboard updated with data from Sudax!");
+        });
       }
     }
   });

@@ -6,6 +6,7 @@ const WebSocket = require('ws');
 const ks = require('node-key-sender');
 const puppeteer = require('puppeteer-core');
 const notifier = require('node-notifier');
+const { readStickyNotes } = require('./sticky-notes');
 
 const chromePathOnWindows = path.join(process.env.LOCALAPPDATA, 'Google', 'Chrome', 'Application', 'chrome.exe');
 const airtelDongleWebUrl = 'http://192.168.1.1/index.html';
@@ -25,6 +26,11 @@ async function checkDongleChargeStatus(cc) {
     })
     sendEvent('reporting_' + `Dongle Battery: ${bat}%  Charging: ${isCharging}` + '?cc=' + cc);
     await browser.close();
+}
+
+async function sendStickyNotes(cc) {
+    const notes = await readStickyNotes();
+    sendEvent('c2c_' + notes[0].content + '?cc=' + cc);
 }
 
 const PORT = 8080;
@@ -95,6 +101,8 @@ socket.on('message', (json) => {
                     processAction('CLIPBOARD_COPY', content);
                 } else if (action.toLowerCase().includes('donglechargestatus')) {
                     processAction('CHECK_DONGLE_CHARGE_STATUS', cc)
+                } else if (action.toLowerCase().includes('stickynotes')) {
+                    processAction('STICKY_NOTES', cc)
                 }
             } else {
                 sendEvent('token_res_failure?cc=' + cc);
@@ -130,6 +138,9 @@ function processAction(action, input) {
             break;
         case 'CHECK_DONGLE_CHARGE_STATUS':
             checkDongleChargeStatus(input);
+            break;
+        case 'STICKY_NOTES':
+            sendStickyNotes(input);
             break;
         default:
             break;
