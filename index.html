@@ -13,6 +13,23 @@
     />
     <meta name="author" content="Sudhakar Ramasamy" />
     <title>Sudax</title>
+    <style>
+      h1,
+      #custom_action_div {
+        text-align: center;
+      }
+      label {
+        font-weight: bolder;
+      }
+      button {
+        padding: 5px;
+        width: 100%;
+        cursor: pointer;
+      }
+      textarea {
+        width: 100%;
+      }
+    </style>
   </head>
   <body>
     <div id="container">
@@ -21,7 +38,9 @@
         <button id="access-button">Check/Get Access</button>
         <br />
         <br />
-        <button id="media-button">Pause/Resume YT/Spotify</button>
+        <button id="media-button">
+          Pause/Resume Media like YT, Spotify, etc.
+        </button>
         <br />
         <br />
         <button id="sys-lock-button">Lock System</button>
@@ -37,11 +56,15 @@
         <br />
         <br />
       </div>
-      <div>
-        <label for="content-ta" style="font-weight: bolder">Action</label>
+      <div id="custom_action_div">
+        <label for="content-ta">Action</label>
         <br />
         <br />
-        <textarea rows="5" cols="100" id="content-ta"></textarea>
+        <textarea
+          rows="5"
+          id="content-ta"
+          placeholder="Enter data to send it to the sudax agent"
+        ></textarea>
         <br />
         <br />
         <button id="send-button">Send</button>

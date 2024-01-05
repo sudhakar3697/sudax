@@ -5,6 +5,7 @@ const cors = require('cors');
 const WebSocket = require('ws');
 const ks = require('node-key-sender');
 const puppeteer = require('puppeteer-core');
+const notifier = require('node-notifier');
 
 const chromePathOnWindows = path.join(process.env.LOCALAPPDATA, 'Google', 'Chrome', 'Application', 'chrome.exe');
 const airtelDongleWebUrl = 'http://192.168.1.1/index.html';
@@ -53,6 +54,11 @@ app.get('/notify', async (req, res) => {
 });
 
 const socket = new WebSocket('wss://ntfy.sh/sudaxo/ws');
+
+setInterval(() => {
+    socket.send('ping');
+    console.log('sent ping from client to ws server');
+}, 30000); // Send a ping every 30 seconds
 
 socket.on('open', () => {
     console.log('Connected to WebSocket server');
@@ -116,6 +122,11 @@ function processAction(action, input) {
             break;
         case 'CLIPBOARD_COPY':
             execSync(`echo ${input} | clip`);
+            notifier.notify({
+                title: 'Sudax - Clipboard changed',
+                message: input,
+                icon: 'sudax.png'
+            });
             break;
         case 'CHECK_DONGLE_CHARGE_STATUS':
             checkDongleChargeStatus(input);

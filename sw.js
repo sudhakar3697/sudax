@@ -54,7 +54,7 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
     console.log('[Service Worker] Fetch', e.request.url);
-    if (e.request.url.startsWith('chrome-extension://')) {
+    if (e.request.url.startsWith('chrome-extension://') || e.request.url.startsWith('https://ntfy.sh')) {
         return;
     }
     e.respondWith(
