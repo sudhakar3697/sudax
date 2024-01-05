@@ -1,8 +1,30 @@
 const { execSync } = require('child_process');
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const WebSocket = require('ws');
 const ks = require('node-key-sender');
+const puppeteer = require('puppeteer-core');
+
+const chromePathOnWindows = path.join(process.env.LOCALAPPDATA, 'Google', 'Chrome', 'Application', 'chrome.exe');
+const airtelDongleWebUrl = 'http://192.168.1.1/index.html';
+
+async function checkDongleChargeStatus(cc) {
+    const browser = await puppeteer.launch({
+        executablePath: chromePathOnWindows
+    });
+    const page = await browser.newPage();
+    await page.goto(airtelDongleWebUrl);
+
+    const { bat, isCharging } = await page.evaluate(() => {
+        return {
+            bat: window['batt_p'],
+            isCharging: window['flag_battery'] === 4 ? true : false
+        }
+    })
+    sendEvent('reporting_' + `Dongle Battery: ${bat}%  Charging: ${isCharging}` + '?cc=' + cc);
+    await browser.close();
+}
 
 const PORT = 8080;
 
@@ -65,6 +87,8 @@ socket.on('message', (json) => {
                 } else if (action.toLowerCase().includes('$clipcopy')) {
                     let content = action.split('$clipcopy=')[1];
                     processAction('CLIPBOARD_COPY', content);
+                } else if (action.toLowerCase().includes('donglechargestatus')) {
+                    processAction('CHECK_DONGLE_CHARGE_STATUS', cc)
                 }
             } else {
                 sendEvent('token_res_failure?cc=' + cc);
@@ -92,6 +116,9 @@ function processAction(action, input) {
             break;
         case 'CLIPBOARD_COPY':
             execSync(`echo ${input} | clip`);
+            break;
+        case 'CHECK_DONGLE_CHARGE_STATUS':
+            checkDongleChargeStatus(input);
             break;
         default:
             break;

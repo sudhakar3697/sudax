@@ -33,6 +33,9 @@
         <button id="copy-button">Send Clipboard Content</button>
         <br />
         <br />
+        <button id="dcs-button">Dongle Charge Status</button>
+        <br />
+        <br />
       </div>
       <div>
         <label for="content-ta" style="font-weight: bolder">Action</label>
@@ -79,6 +82,7 @@
   const sysLockButton = document.getElementById("sys-lock-button");
   const minWinButton = document.getElementById("min-win-button");
   const copyButton = document.getElementById("copy-button");
+  const dcsButton = document.getElementById("dcs-button");
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker
@@ -122,6 +126,10 @@
     const clipboardText = await navigator.clipboard.readText();
     console.log("Text from clipboard:", clipboardText);
     sendEvent("$clipcopy=" + clipboardText);
+  });
+
+  dcsButton.addEventListener("click", (e) => {
+    sendEvent("donglechargestatus");
   });
 
   function requestNotificationPermission() {
@@ -184,6 +192,8 @@
         localStorage.removeItem("accessCode");
         accessCode = null;
         alert("You do not have access!");
+      } else if (msg.startsWith("reporting_")) {
+        alert(msg.split("?cc=")[0]);
       }
     }
   });
