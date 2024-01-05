@@ -18,6 +18,9 @@
     <div id="container">
       <h1>Sudax</h1>
       <div>
+        <button id="access-button">Check/Get Access</button>
+        <br />
+        <br />
         <button id="media-button">Pause/Resume YT/Spotify</button>
         <br />
         <br />
@@ -45,6 +48,23 @@
 </html>
 
 <script>
+  let accessCode = localStorage.getItem("accessCode");
+
+  const accessButton = document.getElementById("access-button");
+
+  accessButton.addEventListener("click", (e) => {
+    if (accessCode) {
+      sendEvent("token_req_" + accessCode, false);
+    } else {
+      accessCode = prompt("Enter the access code");
+      if (accessCode) {
+        sendEvent("token_req_" + accessCode, false);
+      } else {
+        alert("Invalid Access Code");
+      }
+    }
+  });
+
   const eventsPanel = document.getElementById("events_panel");
   const sendButton = document.getElementById("send-button");
   const mediaButton = document.getElementById("media-button");
@@ -55,20 +75,17 @@
     navigator.serviceWorker
       .register("sw.js")
       .then((registration) => {
-        console.log(
-          "Service Worker registered with scope:",
-          registration.scope
-        );
+        console.log("[index.html] SW registered", registration.scope);
 
         // Listen for messages from the service worker
-        navigator.serviceWorker.addEventListener("message", function (event) {
-          const data = event.data;
-          console.log("Client received a message:", data);
-          addEntryToEventsPanel(data);
-        });
+        // navigator.serviceWorker.addEventListener("message", function (event) {
+        //   const data = event.data;
+        //   console.log("[index.html] Client received a message:", data);
+        //   addEntryToEventsPanel(data);
+        // });
       })
       .catch((error) => {
-        console.error("Service Worker registration failed:", error);
+        console.error("[index.html] SW registration failed", error);
       });
   }
 
@@ -117,11 +134,11 @@
     eventsPanel.appendChild(li);
   }
 
-  async function sendEvent(data) {
+  async function sendEvent(data, prefixAc = true) {
     if (navigator.onLine) {
       const res = await fetch("https://ntfy.sh/sudaxo", {
         method: "POST",
-        body: data,
+        body: prefixAc ? accessCode + "#" + data : data,
       });
       const resp = await res.json();
       console.log(resp);
@@ -129,4 +146,25 @@
       alert("You are offline!");
     }
   }
+
+  const ws = new WebSocket("wss://ntfy.sh/sudaxo/ws");
+
+  ws.addEventListener("open", () => {
+    console.log("[index.html] WebSocket connection opened");
+  });
+
+  ws.addEventListener("message", function (event) {
+    const data = event.data;
+    console.log("[index.html] Received data:", data);
+    const json = JSON.parse(data);
+    const msg = json.message || "";
+    if (msg === "token_res_success") {
+      localStorage.setItem("accessCode", accessCode);
+      alert("You have access now!");
+    } else if (msg === "token_res_failure") {
+      localStorage.removeItem("accessCode");
+      accessCode = null;
+      alert("You do not have access!");
+    }
+  });
 </script>

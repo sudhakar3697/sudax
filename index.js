@@ -6,19 +6,26 @@ const ks = require('node-key-sender');
 
 const PORT = 8080;
 
+const ACCESS_CODE = (Math.floor(Math.random() * 90) + 10).toString();
+
 const app = express();
 
 app.use(cors());
 
 app.use(express.static('.'));
 
-app.get('/notify', async (req, res) => {
-    const data = 'hello world at ' + Date.now();
-    const res2 = await fetch('https://ntfy.sh/sudaxo', {
+async function sendEvent(data) {
+    const res = await fetch('https://ntfy.sh/sudaxo', {
         method: 'POST',
         body: data,
     });
-    const resp = await res2.json();
+    const resp = await res.json();
+    return resp;
+}
+
+app.get('/notify', async (req, res) => {
+    const data = 'hello world at ' + Date.now();
+    const resp = await sendEvent(data);
     console.log(resp);
     res.send(resp);
 });
@@ -32,12 +39,30 @@ socket.on('message', (json) => {
     console.log(`Received message from server: ${json}`);
     json = JSON.parse(json);
     const msg = json.message || '';
-    if (msg.toLowerCase().includes('toggle')) {
-        processAction('TOGGLE_YOUTUBE');
-    } else if (msg.toLowerCase().includes('lock')) {
-        processAction('LOCK_SCREEN');
-    } else if (msg.toLowerCase().includes('minimize')) {
-        processAction('MINIMIZE');
+
+    if (msg.startsWith('token_req_')) {
+        const ac = msg.split('token_req_')[1];
+        if (ac === ACCESS_CODE) {
+            sendEvent('token_res_success');
+        } else {
+            sendEvent('token_res_failure');
+        }
+        return;
+    }
+
+    const [code, action] = msg.split('#');
+    if (code && action) {
+        if (code === ACCESS_CODE) {
+            if (action.toLowerCase().includes('toggle')) {
+                processAction('TOGGLE_YOUTUBE');
+            } else if (action.toLowerCase().includes('lock')) {
+                processAction('LOCK_SCREEN');
+            } else if (action.toLowerCase().includes('minimize')) {
+                processAction('MINIMIZE');
+            }
+        } else {
+            sendEvent('token_res_failure');
+        }
     }
 });
 socket.on('close', () => {
@@ -65,5 +90,5 @@ function processAction(action, input) {
 }
 
 app.listen(PORT, () => {
-    console.log(`Server running on ${PORT}`)
+    console.log(`Server running on ${PORT} with ACCESS_CODE ${ACCESS_CODE}`)
 });
