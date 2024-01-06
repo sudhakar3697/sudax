@@ -41,7 +41,7 @@ const app = express();
 
 app.use(cors());
 
-app.use(express.static('.'));
+app.use('/sudax', express.static('.'));
 
 async function sendEvent(data) {
     const res = await fetch('https://ntfy.sh/sudaxo', {

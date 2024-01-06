@@ -22,10 +22,10 @@
 
 const cacheName = 'cache-v1';
 const filesToCache = [
-    '/',
-    '/index.html',
-    '/manifest.json',
-    '/sudax.png',
+    '/sudax',
+    '/sudax/index.html',
+    '/sudax/manifest.json',
+    '/sudax/sudax.png',
 ];
 
 self.addEventListener('install', e => {
